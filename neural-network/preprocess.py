@@ -9,26 +9,17 @@ def remove_punctuation(text):
 def tokenize(text):
     return text.split()
 
-def remove_stopwords(words, stopwords):
+def remove_stopwords(words):
+    stopwords = {'the', 'is', 'in', 'and', 'to', 'a', 'of', 'this', 'how', 'an'}  
     return [word for word in words if word not in stopwords]
 
-def stem_word(word):
-    if word.endswith(('ing', 'ed', 'es', 's')) and len(word) > 4:  
-        return word[:-1]
-    return word
 
-def stem_words(words):
-    return [stem_word(word) for word in words]
 
 def preprocess_text_modular(text):
-    stopwords = {'the', 'is', 'in', 'and', 'to', 'a', 'of', 'this', 'how', 'an'}  
-    
     text = to_lowercase(text)
     text = remove_punctuation(text)
     words = tokenize(text)
-    words = remove_stopwords(words, stopwords)
-    words = stem_words(words)
-    
+    words = remove_stopwords(words)
     return words
 
 text = "This is an example sentence, showing how to preprocess text effectively."
