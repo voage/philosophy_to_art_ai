@@ -1,22 +1,38 @@
-import string
+import numpy as np
+from collections import Counter
 
-def to_lowercase(text):
-    return text.lower()
+def tokenize_sentences(sentences):
+    """
+    Tokenize sentences into a list of words.
+    """
+    return [sentence.lower().split() for sentence in sentences]
 
-def remove_punctuation(text):
-    return ''.join(char for char in text if char not in string.punctuation)
+def build_vocab(tokenized_sentences):
+    """
+    Build a vocabulary from tokenized sentences.
+    """
+    vocab = {word: i for i, word in enumerate(set(word for sentence in tokenized_sentences for word in sentence))}
+    return vocab
 
-def tokenize(text):
-    return text.split()
+def sentence_to_bow(sentence, vocab):
+    """
+    Convert a single sentence to a Bag-of-Words vector.
+    """
+    bow = np.zeros(len(vocab))
+    word_counts = Counter(sentence.lower().split())
+    for word, count in word_counts.items():
+        if word in vocab:
+            bow[vocab[word]] = count
+    return bow
 
-def remove_stopwords(words):
-    stopwords = {'the', 'is', 'in', 'and', 'to', 'a', 'of', 'this', 'how', 'an'}  
-    return [word for word in words if word not in stopwords]
+def convert_to_vectors(sentences, vocab):
+    """
+    Convert all sentences to Bag-of-Words vectors.
+    """
+    return np.array([sentence_to_bow(sentence, vocab) for sentence in sentences])
 
-def preprocess_text(text):
-    text = to_lowercase(text)
-    text = remove_punctuation(text)
-    words = tokenize(text)
-    words = remove_stopwords(words)
-    return words
-
+def normalize_vectors(X):
+    """
+    Normalize vectors to scale features between 0 and 1.
+    """
+    return X / np.max(X, axis=0)
