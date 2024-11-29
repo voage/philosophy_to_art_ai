@@ -27,7 +27,7 @@ Y = np.array(labels).reshape(-1, 1)
 input_size = X.shape[1]  # Vocabulary size
 hidden_size = 16         # Hidden layer size
 epochs = 1000            # Number of training epochs
-learning_rate = 0.01  # Lower learning rate
+learning_rate = 0.005 # Lower learning rate
 
 # 4. Train the model
 W1, b1, W2, b2 = train(X, Y, input_size, hidden_size, epochs, learning_rate)
@@ -40,7 +40,7 @@ new_sentences = [
 ]
 
 # Process new sentences using the same tokenizer and vocab
-new_X = convert_to_vectors(new_sentences, vocab)         # Convert new sentences to vectors
+new_X = convert_to_vectors(sentences, vocab)         # Convert new sentences to vectors
 new_X = normalize_vectors(new_X)                        # Normalize new data
 
 # Make predictions
