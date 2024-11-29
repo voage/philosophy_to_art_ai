@@ -35,4 +35,6 @@ def normalize_vectors(X):
     """
     Normalize vectors to scale features between 0 and 1.
     """
-    return X / np.max(X, axis=0)
+    max_values = np.max(X, axis=0)
+    max_values[max_values == 0] = 1  # Avoid division by zero
+    return X / max_values
