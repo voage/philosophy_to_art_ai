@@ -45,8 +45,10 @@ new_X = normalize_vectors(new_X)                        # Normalize new data
 
 # Make predictions
 predictions = predict(new_X, W1, b1, W2, b2)
+print(predictions)
 
 # Interpret predictions
-prediction_labels = ["Stoic" if p == 0 else "Nihilistic" for p in predictions.flatten()]
-for sentence, label in zip(new_sentences, prediction_labels):
-    print(f"'{sentence}' -> {label}")
+for sentence, prob in zip(new_sentences, predictions.flatten()):
+    stoic_score = (1 - prob) * 100  # Probability of being Stoic
+    nihilistic_score = prob * 100   # Probability of being Nihilistic
+    print(f"'{sentence}' -> Stoic: {stoic_score:.2f}%, Nihilistic: {nihilistic_score:.2f}%")

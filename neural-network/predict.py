@@ -13,4 +13,4 @@ def predict(X, W1, b1, W2, b2):
         Predictions (0 for Stoic, 1 for Nihilistic).
     """
     _, _, _, A2 = forward_propagation(X, W1, b1, W2, b2)
-    return (A2 >= 0.5).astype(int)
+    return A2
