@@ -1,8 +1,9 @@
 import numpy as np
-from forward import forward_propagation
-from loss import compute_loss
-from backward import backward_propagation
-from update import update_parameters
+from .forward import forward_propagation
+from .loss import compute_loss
+from .backward import backward_propagation
+from .update import update_parameters
+
 
 def train(X, Y, input_size, hidden_size, epochs, learning_rate):
     """
@@ -38,7 +39,9 @@ def train(X, Y, input_size, hidden_size, epochs, learning_rate):
         dW1, db1, dW2, db2 = backward_propagation(X, Y, Z1, A1, A2, W1, W2)
 
         # Update parameters
-        W1, b1, W2, b2 = update_parameters(W1, b1, W2, b2, dW1, db1, dW2, db2, learning_rate)
+        W1, b1, W2, b2 = update_parameters(
+            W1, b1, W2, b2, dW1, db1, dW2, db2, learning_rate
+        )
 
         if epoch % 100 == 0:
             print(f"Epoch {epoch}, Loss: {loss:.4f}")

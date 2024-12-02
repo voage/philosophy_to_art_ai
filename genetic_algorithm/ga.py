@@ -1,17 +1,6 @@
 import random
 
 
-def get_ann_response():
-    """
-    Simulates the ANN output for a philosophical text.
-    Returns a dictionary with emotion scores.
-    """
-    return {
-        "stoic": 0.1,
-        "nihilistic": 0.9,
-    }
-
-
 def random_color(stoic_score, nihilistic_score):
     """
     Generates a color based on both stoic and nihilistic scores.
@@ -50,12 +39,22 @@ def random_color(stoic_score, nihilistic_score):
 
 def generate_random_artwork(ann_scores):
     """
-    Generates a random artwork representation.
-    Args:
-        ann_scores (dict): Dictionary containing both stoic and nihilistic scores
+    Generates a random artwork representation with stronger philosophical influence.
     """
-    stoic_score = ann_scores["stoic"]
-    nihilistic_score = ann_scores["nihilistic"]
+    stoic_score = ann_scores.get("stoic", 0.5)
+    nihilistic_score = ann_scores.get("nihilistic", 0.5)
+
+    # Determine artwork characteristics based on scores
+    if nihilistic_score > stoic_score:
+        gradient_type = "radial" if random.random() < nihilistic_score else "linear"
+        shape_types = (
+            ["circle", "rectangle"] if nihilistic_score > 0.7 else ["rectangle"]
+        )
+        intensity = random.uniform(0.8, 1.0)  # Higher intensity for nihilistic
+    else:
+        gradient_type = "linear" if random.random() < stoic_score else "radial"
+        shape_types = ["circle"] if stoic_score > 0.7 else ["circle", "rectangle"]
+        intensity = random.uniform(0.5, 0.8)  # Lower intensity for stoic
 
     artwork = {
         "color_palette": [
@@ -63,21 +62,18 @@ def generate_random_artwork(ann_scores):
         ],
         "shapes": [
             {
-                "type": random.choice(["circle", "rectangle"]),
-                "position": (
-                    random.randint(0, 300),
-                    random.randint(0, 300),
-                ),
+                "type": random.choice(shape_types),
+                "position": (random.randint(0, 300), random.randint(0, 300)),
                 "size": random.randint(10, 100),
             }
-            for _ in range(2)
+            for _ in range(random.randint(2, 4))
         ],
         "gradient": {
-            "type": random.choice(["linear", "radial"]),
+            "type": gradient_type,
             "direction": random.randint(0, 360),
-            "intensity": random.uniform(0.5, 1.0),
+            "intensity": intensity,
         },
-        "philosophical_scores": ann_scores,  # Include the scores in the artwork
+        "philosophical_scores": ann_scores,
     }
     return artwork
 
@@ -85,49 +81,82 @@ def generate_random_artwork(ann_scores):
 POPULATION_SIZE = 100
 
 
-def initialize_population(size):
+def initialize_population(size, scores=None):
     """
-    Generates an initial population of artworks.
-    Args:
-        size (int): The number of individuals in the population.
-    Returns:
-        list: A list of artwork genotypes.
+    Generates initial random population with diverse characteristics
     """
-    ann_output = get_ann_response()
     population = []
-
     for _ in range(size):
-        artwork = generate_random_artwork(ann_output)
+        # Generate completely random artworks
+        # Don't bias initial population, let selection pressure guide evolution
+        artwork = {
+            "color_palette": [
+                (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                for _ in range(3)
+            ],
+            "shapes": [
+                {
+                    "type": random.choice(["circle", "rectangle"]),
+                    "position": (random.randint(0, 300), random.randint(0, 300)),
+                    "size": random.randint(10, 100),
+                }
+                for _ in range(random.randint(2, 4))
+            ],
+            "gradient": {
+                "type": random.choice(["linear", "radial"]),
+                "direction": random.randint(0, 360),
+                "intensity": random.uniform(0.5, 1.0),
+            },
+            "philosophical_scores": (
+                scores if scores else {"stoic": 0.5, "nihilistic": 0.5}
+            ),
+        }
         population.append(artwork)
-
     return population
 
 
 def fitness_function(individual, ann_output):
     """
     Evaluates the fitness of an individual artwork.
-    Args:
-        individual (dict): The artwork genotype.
-        ann_output (dict): The ANN emotional scores.
-    Returns:
-        float: The fitness score (higher is better).
     """
     stoic_score = ann_output["stoic"]
     nihilistic_score = ann_output["nihilistic"]
 
-    color_fitness = 0
+    # Calculate how well the artwork matches the target emotional balance
+    style_match = 0
+
+    # Check gradient type match
+    if nihilistic_score > 0.6:  # Strongly nihilistic
+        style_match += 1 if individual["gradient"]["type"] == "radial" else 0
+    elif stoic_score > 0.6:  # Strongly stoic
+        style_match += 1 if individual["gradient"]["type"] == "linear" else 0
+
+    # Color palette evaluation
+    color_match = 0
     for color in individual["color_palette"]:
-        brightness = sum(color) / (3 * 255)  # Normalize brightness to 0-1
-        if stoic_score > nihilistic_score:
-            color_fitness += brightness  # Favor brighter colors
+        brightness = sum(color) / (3 * 255)
+        saturation = max(color) - min(color)
+
+        if nihilistic_score > stoic_score:
+            # Nihilistic prefers darker, more saturated colors
+            color_match += (1 - brightness) * 0.7 + (saturation / 255) * 0.3
         else:
-            color_fitness += 1 - brightness  # Favor darker colors
+            # Stoic prefers balanced, less saturated colors
+            color_match += (1 - abs(brightness - 0.6)) * 0.7 + (
+                1 - saturation / 255
+            ) * 0.3
 
-    color_fitness /= len(individual["color_palette"])
+    color_match /= len(individual["color_palette"])
 
-    # Adjust overall fitness based on dominant emotion
-    dominant_emotion_score = max(stoic_score, nihilistic_score)
-    overall_fitness = color_fitness * 0.7 + dominant_emotion_score * 0.3
+    # Calculate emotional intensity and match
+    target_intensity = abs(
+        stoic_score - nihilistic_score
+    )  # How extreme the emotion should be
+    actual_intensity = abs(color_match - 0.5) * 2  # Convert to 0-1 scale
+    intensity_match = 1 - abs(target_intensity - actual_intensity)
+
+    # Weighted combination of all factors
+    overall_fitness = style_match * 0.3 + color_match * 0.4 + intensity_match * 0.3
 
     return overall_fitness
 
@@ -210,41 +239,46 @@ def genetic_algorithm(population, ann_output, generations=10, mutation_rate=0.1)
     """
     Runs the Genetic Algorithm to evolve artwork.
     Args:
-        population (list): The initial population of individuals.
-        ann_output (dict): The target emotional scores from the ANN.
-        generations (int): The number of generations to run.
-        mutation_rate (float): The probability of mutation.
+        population (list): Initial random population (mix of stoic/nihilistic styles)
+        ann_output (dict): Target scores we're evolving towards
+        generations (int): Number of generations to evolve
+        mutation_rate (float): Chance of mutation
     Returns:
-        dict: The best individual from the final generation.
+        dict: Best artwork matching target scores
     """
-    for _ in range(generations):
-        fitness_scores = []
+    for generation in range(generations):
+        # 1. Evaluate fitness of each individual
+        fitness_scores = [
+            fitness_function(individual, ann_output) for individual in population
+        ]
 
-        for individual in population:
-            score = fitness_function(individual, ann_output)
-            fitness_scores.append(score)
+        # Optional: Print progress
+        best_fitness = max(fitness_scores)
+        print(f"Generation {generation}: Best Fitness = {best_fitness:.3f}")
 
+        # 2. Select parents for next generation
         next_generation = []
-
-        for _ in range(len(population) // 2):
+        while len(next_generation) < len(population):
+            # Select two parents using roulette wheel selection
             parent1 = roulette_wheel_selection(population, fitness_scores)
             parent2 = roulette_wheel_selection(population, fitness_scores)
 
+            # 3. Perform crossover
             child1 = crossover(parent1, parent2)
             child2 = crossover(parent1, parent2)
 
+            # 4. Perform mutation
             child1 = mutate(child1, mutation_rate, ann_output)
             child2 = mutate(child2, mutation_rate, ann_output)
 
             next_generation.extend([child1, child2])
 
+        # Replace old population with new generation
         population = next_generation
 
-    final_fitness_scores = []
-
-    for individual in population:
-        score = fitness_function(individual, ann_output)
-        final_fitness_scores.append(score)
-
+    # Return the best individual from final generation
+    final_fitness_scores = [
+        fitness_function(individual, ann_output) for individual in population
+    ]
     best_index = final_fitness_scores.index(max(final_fitness_scores))
     return population[best_index]

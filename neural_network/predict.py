@@ -1,5 +1,6 @@
 import numpy as np
-from forward import forward_propagation
+from .forward import forward_propagation
+
 
 def predict(X, W1, b1, W2, b2):
     """
