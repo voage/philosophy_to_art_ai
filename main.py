@@ -105,7 +105,7 @@ def main():
             break
 
         print("\nAnalyzing text and generating artwork...")
-        best_artwork = analyze_text_and_generate_art(text, vocab, W1, b1, W2, b2)
+        analyze_text_and_generate_art(text, vocab, W1, b1, W2, b2)
         print("\nArtwork generated! Check 'generated_artwork.png'")
 
 

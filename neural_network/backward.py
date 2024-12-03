@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def backward_propagation(X, Y, Z1, A1, A2, W1, W2):
     """
     Perform backward propagation to calculate gradients.
@@ -16,14 +17,12 @@ def backward_propagation(X, Y, Z1, A1, A2, W1, W2):
     """
     m = X.shape[0]
 
-    # Output layer gradients
     dZ2 = A2 - Y
     dW2 = np.dot(A1.T, dZ2) / m
     db2 = np.sum(dZ2, axis=0, keepdims=True) / m
 
-    # Hidden layer gradients
     dA1 = np.dot(dZ2, W2.T)
-    dZ1 = dA1 * (Z1 > 0)  # ReLU derivative
+    dZ1 = dA1 * (Z1 > 0)
     dW1 = np.dot(X.T, dZ1) / m
     db1 = np.sum(dZ1, axis=0, keepdims=True) / m
 

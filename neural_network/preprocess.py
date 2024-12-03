@@ -1,18 +1,26 @@
 import numpy as np
 from collections import Counter
 
+
 def tokenize_sentences(sentences):
     """
     Tokenize sentences into a list of words.
     """
     return [sentence.lower().split() for sentence in sentences]
 
+
 def build_vocab(tokenized_sentences):
     """
     Build a vocabulary from tokenized sentences.
     """
-    vocab = {word: i for i, word in enumerate(set(word for sentence in tokenized_sentences for word in sentence))}
+    vocab = {
+        word: i
+        for i, word in enumerate(
+            set(word for sentence in tokenized_sentences for word in sentence)
+        )
+    }
     return vocab
+
 
 def sentence_to_bow(sentence, vocab):
     """
@@ -25,16 +33,18 @@ def sentence_to_bow(sentence, vocab):
             bow[vocab[word]] = count
     return bow
 
+
 def convert_to_vectors(sentences, vocab):
     """
     Convert all sentences to Bag-of-Words vectors.
     """
     return np.array([sentence_to_bow(sentence, vocab) for sentence in sentences])
 
+
 def normalize_vectors(X):
     """
     Normalize vectors to scale features between 0 and 1.
     """
     max_values = np.max(X, axis=0)
-    max_values[max_values == 0] = 1  # Avoid division by zero
+    max_values[max_values == 0] = 1
     return X / max_values
