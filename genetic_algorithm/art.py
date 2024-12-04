@@ -1,7 +1,6 @@
 from PIL import Image, ImageDraw
 import random
 import math
-from .ga import random_color
 
 
 def visualize_artwork(artwork, filename="best_artwork.png"):

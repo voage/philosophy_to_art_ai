@@ -11,15 +11,15 @@ def random_color(stoic_score, nihilistic_score):
         stoic_score (float): 0-1 score for stoicism
         nihilistic_score (float): 0-1 score for nihilism
     """
-    if stoic_score > nihilistic_score:
+    if nihilistic_score > stoic_score:
         base_options = [
-            (200, 190, 180),  # Beige
-            (180, 180, 180),  # Gray
-            (170, 190, 200),  # Soft blue
-            (190, 180, 170),  # Warm gray
+            (40, 0, 0),  # Dark red
+            (20, 20, 20),  # Near black
+            (30, 0, 40),  # Dark purple
+            (0, 0, 30),  # Dark blue
         ]
         base_color = random.choice(base_options)
-        variance = int(20 + (nihilistic_score * 30))
+        variance = int(20 + (stoic_score * 30))
 
         return (
             max(0, min(255, base_color[0] + random.randint(-variance, variance))),
@@ -27,8 +27,8 @@ def random_color(stoic_score, nihilistic_score):
             max(0, min(255, base_color[2] + random.randint(-variance, variance))),
         )
     else:
-        primary = random.randint(180 - int(stoic_score * 80), 255)
-        secondary = random.randint(0, 50 + int(stoic_score * 50))
+        primary = random.randint(140, 200)
+        secondary = random.randint(120, 180)
 
         color = [secondary, secondary, secondary]
         color[random.randint(0, 2)] = primary

@@ -8,9 +8,9 @@ def fitness_function(individual, ann_output):
     style_match = 0
 
     if nihilistic_score > 0.6:
-        style_match += 1 if individual["gradient"]["type"] == "radial" else 0
-    elif stoic_score > 0.6:
         style_match += 1 if individual["gradient"]["type"] == "linear" else 0
+    elif stoic_score > 0.6:
+        style_match += 1 if individual["gradient"]["type"] == "radial" else 0
 
     color_match = 0
     for color in individual["color_palette"]:
@@ -18,11 +18,9 @@ def fitness_function(individual, ann_output):
         saturation = max(color) - min(color)
 
         if nihilistic_score > stoic_score:
-            color_match += (1 - brightness) * 0.7 + (saturation / 255) * 0.3
+            color_match += brightness * 0.7 + (1 - saturation / 255) * 0.3
         else:
-            color_match += (1 - abs(brightness - 0.6)) * 0.7 + (
-                1 - saturation / 255
-            ) * 0.3
+            color_match += (1 - brightness) * 0.7 + (saturation / 255) * 0.3
 
     color_match /= len(individual["color_palette"])
 

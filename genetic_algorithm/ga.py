@@ -1,6 +1,5 @@
-from artwork_generator import initialize_population
-from ga_operators import roulette_wheel_selection, crossover, mutate
-from fitness_function import fitness_function
+from .ga_operators import roulette_wheel_selection, crossover, mutate
+from .fitness_function import fitness_function
 
 POPULATION_SIZE = 100
 

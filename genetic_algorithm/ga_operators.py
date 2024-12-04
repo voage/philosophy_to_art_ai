@@ -1,5 +1,5 @@
 import random
-from color_generator import random_color
+from .color_generator import random_color
 
 
 def roulette_wheel_selection(population, fitness_scores):
