@@ -42,17 +42,19 @@ def generate_random_artwork(ann_scores):
     return artwork
 
 
-def initialize_population(size, scores=None):
+def initialize_population(size, scores):
     """
-    Generates initial random population with diverse characteristics
+    Generates a truly random initial population without bias
     """
     population = []
     for _ in range(size):
         artwork = {
+            # Completely random colors (0-255 for each RGB)
             "color_palette": [
                 (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                 for _ in range(3)
             ],
+            # Random shapes
             "shapes": [
                 {
                     "type": random.choice(["circle", "rectangle"]),
@@ -61,14 +63,13 @@ def initialize_population(size, scores=None):
                 }
                 for _ in range(random.randint(2, 4))
             ],
+            # Random gradient
             "gradient": {
                 "type": random.choice(["linear", "radial"]),
                 "direction": random.randint(0, 360),
-                "intensity": random.uniform(0.5, 1.0),
+                "intensity": random.uniform(0, 1.0),
             },
-            "philosophical_scores": (
-                scores if scores else {"stoic": 0.5, "nihilistic": 0.5}
-            ),
+            "philosophical_scores": scores,
         }
         population.append(artwork)
     return population
